@@ -89,62 +89,32 @@ class DFSTraversal:
     def __init__(self, tree, traversalType):
         self.traversalType = traversalType.name
         self.tree = tree
-        self.pre_list = []
-        self.in_list = []
-        self.post_list = []
-        self.preorder(self.tree.root)
-        self.inorder(self.tree.root)
-        self.postorder(self.tree.root)
-        self.index = 0
         
     def changeTraversalType(self, traversalType):
         self.traversalType = traversalType.name
-        self.index = 0
                  
     def preorder(self, node):
         if node is not None:
-            self.pre_list.append(node.val)
-            self.preorder(node.left)
-            self.preorder(node.right)
-                  
+            yield node.val
+            yield from self.preorder(node.left)
+            yield from self.preorder(node.right)
+                       
     def inorder(self, node):
         if node is not None:
-            self.inorder(node.left)
-            self.in_list.append(node.val)
-            self.inorder(node.right)
+            yield from self.inorder(node.left)
+            yield node.val
+            yield from self.inorder(node.right)
             
     def postorder(self, node):
         if node is not None:
-            self.postorder(node.left)
-            self.postorder(node.right)
-            self.post_list.append(node.val)
-            
-     
-    def __next__(self):        
-        if self.traversalType == 'PREORDER':
-            try:
-                value = self.pre_list[self.index]
-            except IndexError:
-                raise StopIteration()
-            self.index += 1
-            return value        
-            
-        elif self.traversalType == 'INORDER':
-            try:
-                value = self.in_list[self.index]
-            except IndexError:
-                raise StopIteration()
-            self.index += 1
-            return value 
-            
-        elif self.traversalType == 'POSTORDER':
-            try:
-                value = self.post_list[self.index]
-            except IndexError:
-                raise StopIteration()
-            self.index += 1
-            return value 
-        
+            yield from self.postorder(node.left)
+            yield from self.postorder(node.right)
+            yield node.val
         
     def __iter__(self):
-        return self
+        if self.traversalType == 'PREORDER':
+            yield from self.preorder(self.tree.root)
+        elif self.traversalType == 'INORDER':
+            yield from self.inorder(self.tree.root)
+        elif self.traversalType == 'POSTORDER':
+            yield from self.postorder(self.tree.root)
